@@ -1,46 +1,4 @@
-// Wait for all dependencies to load
-window.addEventListener('load', async function() {
-    console.log('Initializing DApp...');
-    
-    // Ensure required dependencies are available
-    if (typeof Web3Modal === 'undefined') {
-        console.error('Web3Modal not found');
-        return;
-    }
-    if (typeof WalletConnectProvider === 'undefined') {
-        console.error('WalletConnectProvider not found');
-        return;
-    }
-
-    // Initialize Web3Modal
-    let web3Modal;
-    try {
-        const providerOptions = {
-            walletconnect: {
-                package: WalletConnectProvider,
-                options: {
-                    rpc: {
-                        56: "https://bsc-dataseed.binance.org/"
-                    },
-                    network: 'binance',
-                    chainId: 56
-                }
-            }
-        };
-
-        web3Modal = new Web3Modal({
-            network: "binance",
-            cacheProvider: false,
-            providerOptions,
-            theme: "dark"
-        });
-
-        console.log('Web3Modal initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize Web3Modal:', error);
-        return;
-    }
-
+document.addEventListener('DOMContentLoaded', function() {
     // State variables
     let provider;
     let signer;
@@ -75,7 +33,6 @@ window.addEventListener('load', async function() {
 
     // Utility function to show alerts
     function showAlert(message, type = "info") {
-        console.log(`Alert [${type}]:`, message);
         const alert = document.createElement("div");
         alert.className = `p-4 mb-4 rounded-lg ${
             type === "error" ? "bg-red-100 text-red-700" :
@@ -87,36 +44,34 @@ window.addEventListener('load', async function() {
         setTimeout(() => alertsDiv.removeChild(alert), 5000);
     }
 
-    // Connect wallet using Web3Modal
+    // Connect wallet using MetaMask
     async function connectWallet() {
         try {
-            console.log('Connecting wallet...');
-            const instance = await web3Modal.connect();
-            console.log('Provider instance:', instance);
+            if (!window.ethereum) {
+                showAlert("Please install MetaMask!", "error");
+                return;
+            }
 
-            provider = new ethers.providers.Web3Provider(instance);
-            console.log('Ethers provider initialized');
+            // Request account access
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            provider = new ethers.providers.Web3Provider(window.ethereum);
             
             const network = await provider.getNetwork();
-            console.log('Network:', network);
-
             if (network.chainId !== 56) {
                 showAlert("Please connect to Binance Smart Chain", "error");
                 return;
             }
 
             signer = provider.getSigner();
-            userAddress = await signer.getAddress();
-            console.log('Connected address:', userAddress);
+            userAddress = accounts[0];
 
             stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, STAKING_CONTRACT_ABI, signer);
             tokenContract = new ethers.Contract(TOKEN_CONTRACT_ADDRESS, TOKEN_CONTRACT_ABI, signer);
 
             updateUIOnConnect();
 
-            // Subscribe to provider events
-            instance.on("accountsChanged", (accounts) => {
-                console.log('Accounts changed:', accounts);
+            // Listen for account changes
+            window.ethereum.on('accountsChanged', function (accounts) {
                 if (accounts.length === 0) {
                     disconnectWallet();
                 } else {
@@ -126,14 +81,9 @@ window.addEventListener('load', async function() {
                 }
             });
 
-            instance.on("chainChanged", () => {
-                console.log('Chain changed, reloading...');
+            // Listen for network changes
+            window.ethereum.on('chainChanged', function(chainId) {
                 window.location.reload();
-            });
-
-            instance.on("disconnect", () => {
-                console.log('Provider disconnected');
-                disconnectWallet();
             });
 
             fetchUserData();
@@ -145,8 +95,6 @@ window.addEventListener('load', async function() {
     }
 
     function disconnectWallet() {
-        console.log('Disconnecting wallet...');
-        web3Modal.clearCachedProvider();
         provider = null;
         signer = null;
         userAddress = null;
@@ -160,7 +108,6 @@ window.addEventListener('load', async function() {
     }
 
     function updateUIOnConnect() {
-        console.log('Updating UI for connected wallet');
         connectWalletBtn.style.display = "none";
         walletInfoSection.classList.remove("hidden");
         stakingControlsSection.classList.remove("hidden");
@@ -169,7 +116,6 @@ window.addEventListener('load', async function() {
 
     async function fetchUserData() {
         try {
-            console.log('Fetching user data...');
             const [balance, totalStaked, apy, pendingRewards, lockTime, rewardsRemaining] = await Promise.all([
                 tokenContract.balanceOf(userAddress),
                 stakingContract.totalStaked(userAddress),
@@ -185,7 +131,6 @@ window.addEventListener('load', async function() {
             pendingRewardsSpan.textContent = ethers.utils.formatUnits(pendingRewards, 18);
             lockTimeSpan.textContent = new Date(lockTime.toNumber() * 1000).toLocaleString();
             rewardsRemainingSpan.textContent = ethers.utils.formatUnits(rewardsRemaining, 18);
-            console.log('User data updated');
         } catch (error) {
             console.error("Data fetch error:", error);
             showAlert("Error fetching user data: " + (error.message || "Unknown error"), "error");
@@ -281,6 +226,4 @@ window.addEventListener('load', async function() {
     harvestBtn.addEventListener("click", harvestRewards);
     withdrawBtn.addEventListener("click", withdrawTokens);
     emergencyWithdrawBtn.addEventListener("click", emergencyWithdraw);
-
-    console.log('DApp initialization complete');
 });
