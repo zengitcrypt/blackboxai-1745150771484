@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LOTINU Staking DApp</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Web3Modal v2 -->
+  <script src="https://unpkg.com/@web3modal/html@2.0.0-beta.11/dist/index.js"></script>
+  <script src="https://unpkg.com/@web3modal/ethereum@2.0.0-beta.11/dist/index.js"></script>
+
+  <style>
+    body {
+      font-family: 'Fredoka One', cursive, 'Poppins', sans-serif;
+      background: url('https://images.pexels.com/photos/2150/sky-space-dark-galaxy.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      min-height: 100vh;
+    }
+    .glow-card {
+      @apply bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-opacity-20 rounded-3xl p-6 shadow-lg shadow-yellow-400/50;
+    }
+    .btn-gradient {
+      @apply bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 hover:from-yellow-500 hover:to-yellow-700;
+    }
+    .btn-gradient-secondary {
+      @apply bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold py-3 px-6 rounded-full shadow-md transition duration-300 hover:from-blue-500 hover:to-blue-700;
+    }
+    .btn-danger {
+      @apply bg-gradient-to-r from-red-500 to-red-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 hover:from-red-600 hover:to-red-800;
+    }
+    /* Scrollbar for alerts */
+    #alerts {
+      max-height: 150px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center p-4">
+
+  <header class="w-full max-w-4xl flex items-center justify-between py-4">
+    <img src="https://lotinu.com/images/logo.png" alt="LOTINU Logo" class="h-14" />
+    <button id="connectWalletBtn" class="btn-gradient">Connect Wallet</button>
+  </header>
+
+  <main class="w-full max-w-4xl mt-6 space-y-8">
+
+    <section id="walletInfo" class="glow-card hidden space-y-3">
+      <h2 class="text-2xl font-bold text-yellow-300">Wallet Info</h2>
+      <p><strong>Connected Wallet:</strong> <span id="walletAddress" class="font-mono"></span></p>
+      <p><strong>Token Balance:</strong> <span id="tokenBalance">0</span> LOTINU</p>
+      <p><strong>Staked Treats:</strong> <span id="totalStaked">0</span> LOTINU</p>
+      <p><strong>APY:</strong> <span id="apy">0%</span></p>
+      <p><strong>Unclaimed Treats:</strong> <span id="pendingRewards">0</span> LOTINU</p>
+      <p><strong>Bone Lock Timer:</strong> <span id="lockTime">N/A</span></p>
+      <p><strong>Rewards Remaining:</strong> <span id="rewardsRemaining">0</span> LOTINU</p>
+    </section>
+
+    <section id="stakingControls" class="glow-card hidden space-y-6">
+      <div>
+        <label for="stakeAmount" class="block font-semibold mb-2">Amount to Stake</label>
+        <input type="number" id="stakeAmount" min="0" step="0.01" class="w-full rounded-3xl border border-yellow-400 bg-yellow-50 bg-opacity-10 p-3 text-white placeholder-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Enter amount" />
+      </div>
+      <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+        <button id="approveBtn" class="btn-gradient-secondary flex-1">Approve</button>
+        <button id="stakeBtn" class="btn-gradient flex-1">Stake</button>
+      </div>
+      <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+        <button id="harvestBtn" class="btn-gradient-secondary flex-1">Harvest Rewards</button>
+        <button id="withdrawBtn" class="btn-gradient flex-1">Withdraw</button>
+      </div>
+      <button id="emergencyWithdrawBtn" class="btn-danger w-full mt-4">Emergency Withdraw</button>
+    </section>
+
+    <div id="alerts" class="mt-6 space-y-2"></div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@web3modal/html@2.0.0-beta.11/dist/index.js"></script>
+  <script src="https://unpkg.com/@web3modal/ethereum@2.0.0-beta.11/dist/index.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
