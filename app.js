@@ -1,7 +1,6 @@
-// Web3Modal v2 integration with ethers.js for LOTINU Staking DApp
-
+// Use global variables exposed by scripts loaded in index.html
 const { Web3Modal } = window.Web3Modal;
-const { EthereumClient, w3mConnectors, w3mProvider } = window.Web3ModalEthereum;
+const { EthereumClient } = window.Web3ModalEthereum;
 const { ethers } = window.ethers;
 
 // Configuration for Binance Smart Chain
@@ -19,7 +18,7 @@ const chains = [
 
 // Initialize Web3Modal and EthereumClient
 const web3Modal = new Web3Modal({
-  projectId: "8223a8f28a6ac2811a0e9ec8ae098473", // Replace with your Web3Modal project ID
+  projectId: "YOUR_PROJECT_ID", // Replace with your Web3Modal project ID
   themeMode: "dark",
   themeColor: "#FFCC00",
   themeBackground: "gradient",
@@ -258,3 +257,4 @@ async function emergencyWithdraw() {
 }
 
 init();
+</create_file>
